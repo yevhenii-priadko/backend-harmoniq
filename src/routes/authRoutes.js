@@ -1,8 +1,19 @@
 import { Router } from 'express';
-// import { celebrate } from 'celebrate';
-import { refreshUserSession } from '../controllers/authController.js';
+import {
+  refreshUserSession,
+  registerUserController,
+} from '../controllers/authController.js';
+import { registerUserValidation } from '../validations/authValidation.js';
+import { upload } from '../middleware/multer.js';
 
 const router = Router();
+
+router.post(
+  '/auth/register',
+  upload.single('avatar'),
+  registerUserValidation,
+  registerUserController,
+);
 
 router.post('/auth/refresh', refreshUserSession);
 
