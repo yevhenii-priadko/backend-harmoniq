@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
-import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
 export const refreshUserSession = async (req, res) => {
   const { sessionId, refreshToken } = req.cookies;
@@ -53,32 +52,17 @@ export const registerUserController = async (req, res) => {
     throw createHttpError(409, 'Email already exists');
   }
 
-  if (req.file && req.file.size > 1024 * 1024) {
-    throw createHttpError(413, 'Avatar file must not exceed 1 MB');
-  }
-
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  let avatar;
-
-  if (req.file) {
-    avatar = await saveFileToCloudinary(req.file.buffer);
-  }
-
-  const userData = {
+  const user = await User.create({
     username,
     email,
     password: hashedPassword,
-  };
-
-  if (avatar) {
-    userData.avatar = avatar;
-  }
-
-  const user = await User.create(userData);
+  });
 
   res.status(201).json({
     message: 'User registered successfully',
     data: user,
   });
 };
+
