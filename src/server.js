@@ -1,4 +1,5 @@
-import dns from 'dns'; dns.setServers(['8.8.8.8', '8.8.4.4']);
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
@@ -8,6 +9,7 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { errors } from 'celebrate';
 import helmet from 'helmet';
+import articlesRoutes from './routes/articlesRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -25,6 +27,7 @@ app.use(
 //app.use(routes);
 //app.use(routes);
 //app.use(routes);
+app.use(articlesRoutes);
 
 app.use(notFoundHandler);
 
