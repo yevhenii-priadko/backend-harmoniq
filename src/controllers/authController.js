@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-// import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
@@ -7,6 +7,28 @@ import { createSession, setSessionCookies } from '../services/auth.js';
 // import handlebars from 'handlebars';
 // import path from 'node:path';
 // import fs from 'node:fs/promises';
+
+export const loginUser = async (res, req) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw createHttpError(401, 'Invalid credentials');
+  }
+
+  const isValidaPassword = await bcrypt.compare(password, user.password);
+  if (isValidaPassword) {
+    throw createHttpError(401, 'Invalid credentials');
+  }
+
+  await Session.deleteOne({ userId: user._id });
+
+  const newSession = await createSession(user._id);
+  setSessionCookies(res, newSession);
+
+  res.status(200).json({ user });
+};
 
 export const refreshUserSession = async (req, res) => {
   const { sessionId, refreshToken } = req.cookies;
