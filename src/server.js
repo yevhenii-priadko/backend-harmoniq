@@ -1,13 +1,18 @@
-import dns from 'dns'; dns.setServers(['8.8.8.8', '8.8.4.4']);
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
+import helmet from 'helmet';
+import { errors } from 'celebrate';
+
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
-import { errors } from 'celebrate';
-import helmet from 'helmet';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -15,6 +20,8 @@ const PORT = process.env.PORT ?? 3000;
 app.use(helmet());
 app.use(logger);
 app.use(express.json());
+app.use(cookieParser());
+
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL, 'http://localhost:3000'],
@@ -22,14 +29,10 @@ app.use(
   }),
 );
 
-//app.use(routes);
-//app.use(routes);
-//app.use(routes);
+app.use(authRoutes);
 
 app.use(notFoundHandler);
-
 app.use(errors());
-
 app.use(errorHandler);
 
 await connectMongoDB();
