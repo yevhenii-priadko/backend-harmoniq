@@ -1,6 +1,5 @@
 import dns from 'dns';
 dns.setServers(['8.8.8.8', '8.8.4.4']);
-
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -13,6 +12,7 @@ import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
+import articlesRoutes from './routes/articlesRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -30,6 +30,7 @@ app.use(
 );
 
 app.use(authRoutes);
+app.use(articlesRoutes);
 
 app.use(notFoundHandler);
 app.use(errors());
