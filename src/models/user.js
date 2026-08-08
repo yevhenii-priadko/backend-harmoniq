@@ -10,6 +10,13 @@ const userSchema = new Schema(
       required: false,
       default: 'https:URL',
     },
+
+    savedArticles: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Article',
+      },
+    ],
   },
   { timestamps: true },
 );
