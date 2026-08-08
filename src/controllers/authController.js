@@ -8,7 +8,7 @@ import { createSession, setSessionCookies } from '../services/auth.js';
 // import path from 'node:path';
 // import fs from 'node:fs/promises';
 
-export const loginUser = async (res, req) => {
+export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -17,8 +17,8 @@ export const loginUser = async (res, req) => {
     throw createHttpError(401, 'Invalid credentials');
   }
 
-  const isValidaPassword = await bcrypt.compare(password, user.password);
-  if (isValidaPassword) {
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
     throw createHttpError(401, 'Invalid credentials');
   }
 
@@ -27,7 +27,9 @@ export const loginUser = async (res, req) => {
   const newSession = await createSession(user._id);
   setSessionCookies(res, newSession);
 
-  res.status(200).json({ user });
+  const { password: _password, ...userWithoutPassword } = user.toObject();
+
+  res.status(200).json({ user: userWithoutPassword });
 };
 
 export const refreshUserSession = async (req, res) => {

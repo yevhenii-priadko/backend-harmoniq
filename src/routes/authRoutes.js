@@ -1,10 +1,9 @@
 import { Router } from 'express';
-// import { celebrate } from 'celebrate';
+import { celebrate } from 'celebrate';
 import {
   loginUser,
   refreshUserSession,
 } from '../controllers/authController.js';
-import { celebrate } from 'celebrate';
 import { loginSchame } from '../validations/authValidation.js';
 
 const router = Router();
