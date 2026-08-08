@@ -1,4 +1,4 @@
-import { User } from '../models/user';
+import { User } from '../models/user.js';
 
 // Додавання статті до збережених
 export const addSavedArticle = async (req, res) => {
