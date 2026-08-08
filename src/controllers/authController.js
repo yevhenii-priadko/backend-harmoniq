@@ -60,9 +60,11 @@ export const registerUserController = async (req, res) => {
     password: hashedPassword,
   });
 
+  const { password: _password, ...userWithoutPassword } = user.toObject();
+
   res.status(201).json({
     message: 'User registered successfully',
-    data: user,
+    data: userWithoutPassword,
   });
 };
 
