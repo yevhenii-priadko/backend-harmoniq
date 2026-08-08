@@ -23,13 +23,13 @@ export const updateUserAvatar = async (req, res, next) => {
 export const getUserById = async (req, res) => {
   const { id } = req.params;
 
-  const user = await User.findOne({ _id: id });
+  const user = await User.findOne({ _id: id }).select('-password');
 
   if (!user) {
     throw createHttpError(404, 'User not found');
   }
 
-  res.status(200).json({user});
+  res.status(200).json({ user });
 };
 
 export const getUserArticles = async (req, res) => {
