@@ -7,6 +7,7 @@ import {
   getArticleById,
   addSavedArticle,
   removeSavedArticle,
+  deleteArticleById,
 } from '../controllers/articlesController.js';
 import {
   articleIdSchema,
@@ -19,6 +20,7 @@ const router = Router();
 router.get('/articles', celebrate(getAllArticlesSchema), getAllArticles);
 router.get('/articles/:articleId', celebrate(articleIdSchema), getArticleById);
 router.post('/articles', authenticate, celebrate(createArticleSchema), createArticle);
+router.delete('/articles/:articleId', authenticate, deleteArticleById);
 
 router.use('/users', authenticate);
 router.post('/users/saved/:articleId', addSavedArticle);
