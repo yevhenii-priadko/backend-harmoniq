@@ -23,9 +23,24 @@ export const loginUser = async (req, res) => {
   const newSession = await createSession(user._id);
   setSessionCookies(res, newSession);
 
-  const { password: _password, ...userWithoutPassword } = user.toObject();
+  const userWithoutPassword = user.toObject();
+  delete userWithoutPassword.password;
 
   res.status(200).json({ user: userWithoutPassword });
+};
+
+export const logoutUser = async (req, res) => {
+  const { sessionId } = req.cookies;
+
+  if (sessionId) {
+    await Session.deleteOne({ _id: sessionId });
+  }
+
+  res.clearCookie('sessionId');
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+
+  res.status(204).send();
 };
 
 export const refreshUserSession = async (req, res) => {
@@ -84,11 +99,11 @@ export const registerUserController = async (req, res) => {
     password: hashedPassword,
   });
 
-  const { password: _password, ...userWithoutPassword } = user.toObject();
+  const userWithoutPassword = user.toObject();
+  delete userWithoutPassword.password;
 
   res.status(201).json({
     message: 'User registered successfully',
     data: userWithoutPassword,
   });
 };
-
