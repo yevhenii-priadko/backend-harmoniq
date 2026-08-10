@@ -1,11 +1,13 @@
-import { Article } from "../models/article.js";
+import { Article } from '../models/article.js';
 import { User } from '../models/user.js';
 import createHttpError from 'http-errors';
 
 export const getAllArticles = async (req, res) => {
-  const { page = 1, perPage = 10 } = req.query;
+  const { page = 1, perPage = 10, sortOrder = 'desc' } = req.query;
   const skip = (page - 1) * perPage;
-  const articlesQuery = Article.find();
+
+  const sortDirection = sortOrder === 'asc' ? 1 : -1;
+  const articlesQuery = Article.find().sort({ createdAt: sortDirection });
 
   const [totalArticles, articles] = await Promise.all([
     articlesQuery.clone().countDocuments(),
@@ -33,7 +35,7 @@ export const getArticleById = async (req, res) => {
 export const deleteArticleById = async (req, res) => {
   const { articleId } = req.params;
   const userId = req.user._id;
-  
+
   const article = await Article.findOne({
     _id: articleId,
   });
@@ -45,11 +47,11 @@ export const deleteArticleById = async (req, res) => {
   }
 
   await Article.findOneAndDelete({
-    _id: articleId
+    _id: articleId,
   });
 
   res.status(200).json({
-    message: "Article is deleted successfully"
+    message: 'Article is deleted successfully',
   });
 };
 
