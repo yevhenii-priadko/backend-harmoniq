@@ -1,20 +1,73 @@
-import { Article } from "../models/article.js";
+import { Article } from '../models/article.js';
 import { User } from '../models/user.js';
 import createHttpError from 'http-errors';
 
 export const getAllArticles = async (req, res) => {
-  const { page = 1, perPage = 10 } = req.query;
+  const {
+    page = 1,
+    perPage = 10,
+    sortOrder = 'desc',
+    filter = 'all',
+  } = req.query;
   const skip = (page - 1) * perPage;
-  const articlesQuery = Article.find();
 
-  const [totalArticles, articles] = await Promise.all([
-    articlesQuery.clone().countDocuments(),
-    articlesQuery.skip(skip).limit(perPage),
-  ]);
+  if (filter === 'all') {
+    const articlesQuery = Article.find().sort({
+      createdAt: sortOrder === 'asc' ? 1 : -1,
+    });
+
+    const [totalArticles, articles] = await Promise.all([
+      articlesQuery.clone().countDocuments(),
+      articlesQuery.skip(skip).limit(perPage),
+    ]);
+
+    const totalPages = Math.ceil(totalArticles / perPage);
+
+    return res
+      .status(200)
+      .json({ page, perPage, totalArticles, totalPages, articles });
+  }
+
+  const users = await User.find().select('savedArticles');
+
+  const savedCount = {};
+
+  users.forEach((user) => {
+    user.savedArticles.forEach((articleId) => {
+      const id = articleId.toString();
+
+      savedCount[id] = (savedCount[id] || 0) + 1;
+    });
+  });
+
+  const articles = await Article.find();
+
+  const popularArticles = articles
+    .map((article) => ({
+      ...article.toObject(),
+      savedCount: savedCount[article._id.toString()] || 0,
+    }))
+    .sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.savedCount - b.savedCount;
+      }
+
+      return b.savedCount - a.savedCount;
+    });
+
+  const totalArticles = popularArticles.length;
+
+  const paginatedArticles = popularArticles.slice(skip, skip + Number(perPage));
 
   const totalPages = Math.ceil(totalArticles / perPage);
 
-  res.status(200).json({ page, perPage, totalArticles, totalPages, articles });
+  return res.status(200).json({
+    page,
+    perPage,
+    totalArticles,
+    totalPages,
+    articles: paginatedArticles,
+  });
 };
 
 export const getArticleById = async (req, res) => {
@@ -33,7 +86,7 @@ export const getArticleById = async (req, res) => {
 export const deleteArticleById = async (req, res) => {
   const { articleId } = req.params;
   const userId = req.user._id;
-  
+
   const article = await Article.findOne({
     _id: articleId,
   });
@@ -45,11 +98,11 @@ export const deleteArticleById = async (req, res) => {
   }
 
   await Article.findOneAndDelete({
-    _id: articleId
+    _id: articleId,
   });
 
   res.status(200).json({
-    message: "Article is deleted successfully"
+    message: 'Article is deleted successfully',
   });
 };
 
