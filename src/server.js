@@ -5,6 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
 import { errors } from 'celebrate';
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { logger } from './middleware/logger.js';
@@ -13,9 +14,21 @@ import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import articlesRoutes from './routes/articlesRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import { openApiSpec } from './docs/openapi.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
+
+app.get('/api-docs.json', (req, res) => {
+  res.status(200).json(openApiSpec);
+});
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(openApiSpec, {
+    customSiteTitle: 'Harmoniq API Docs',
+  }),
+);
 
 app.use(helmet());
 app.use(logger);
