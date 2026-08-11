@@ -30,8 +30,8 @@ app.use(
 );
 
 app.use(authRoutes);
-app.use(articlesRoutes);
 app.use(userRoutes);
+app.use(articlesRoutes);
 
 app.use(notFoundHandler);
 app.use(errors());
