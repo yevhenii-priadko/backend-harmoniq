@@ -13,6 +13,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import articlesRoutes from './routes/articlesRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import categoriesRoutes from './routes/articlesRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -32,6 +33,7 @@ app.use(
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(articlesRoutes);
+app.use(categoriesRoutes);
 
 app.use(notFoundHandler);
 app.use(errors());
