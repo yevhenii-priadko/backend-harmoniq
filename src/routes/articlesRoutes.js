@@ -10,11 +10,13 @@ import {
   addSavedArticle,
   removeSavedArticle,
   deleteArticleById,
+  updateArticle,
 } from '../controllers/articlesController.js';
 import {
   articleIdSchema,
   createArticleSchema,
   getAllArticlesSchema,
+  updateArticleSchema,
 } from '../validations/articlesValidation.js';
 
 const router = Router();
