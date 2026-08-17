@@ -109,6 +109,10 @@ export const deleteArticleById = async (req, res) => {
 export const createArticle = async (req, res) => {
   const article = await Article.create({
     ...req.body,
+    // author ігноруємо з тіла запиту: довіряти клієнту нема сенсу (застаріле
+    // значення з локального стору, "Unknown" при не залогіненому фронті і т.д.) —
+    // беремо ім'я напряму з автентифікованого користувача, як і userId нижче.
+    author: req.user.username,
     userId: req.user._id,
   });
   res.status(201).json(article);
@@ -119,7 +123,7 @@ export const updateArticle = async (req, res) => {
 
   const updatedArticle = await Article.findOneAndUpdate(
     { _id: articleId, userId: req.user._id }, // Захист: оновлюємо тільки якщо стаття належить користувачу
-    { ...req.body },
+    { ...req.body, author: req.user.username }, // author завжди з req.user, не з тіла
     { new: true, runValidators: true },
   );
 
