@@ -114,6 +114,24 @@ export const createArticle = async (req, res) => {
   res.status(201).json(article);
 };
 
+export const updateArticle = async (req, res) => {
+  const { articleId } = req.params;
+
+  const updatedArticle = await Article.findOneAndUpdate(
+    { _id: articleId, userId: req.user._id }, // Захист: оновлюємо тільки якщо стаття належить користувачу
+    { ...req.body },
+    { new: true, runValidators: true },
+  );
+
+  if (!updatedArticle) {
+    return res
+      .status(404)
+      .json({ message: 'Article not found or unauthorized' });
+  }
+
+  res.status(200).json(updatedArticle);
+};
+
 // Додавання статті до збережених
 export const addSavedArticle = async (req, res) => {
   const { articleId } = req.params;
