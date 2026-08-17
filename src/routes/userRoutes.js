@@ -6,14 +6,25 @@ import {
   getUsers,
   updateUserAvatar,
 } from '../controllers/userController.js';
+import {
+  addSavedArticle,
+  removeSavedArticle,
+} from '../controllers/articlesController.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { upload } from '../middleware/multer.js';
 
 const router = Router();
 
-router.patch('/users/avatar', authenticate, upload.single('avatar'), updateUserAvatar);
+router.patch(
+  '/users/avatar',
+  authenticate,
+  upload.single('avatar'),
+  updateUserAvatar,
+);
 router.get('/users', getUsers);
 router.get('/users/me/saved-articles', authenticate, getSavedArticles);
+router.post('/users/saved/:articleId', authenticate, addSavedArticle);
+router.delete('/users/saved/:articleId', authenticate, removeSavedArticle);
 router.get('/users/:id/articles', getUserArticles);
 router.get('/users/:id/', getUserById);
 

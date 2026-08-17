@@ -7,8 +7,6 @@ import {
   createArticle,
   getAllArticles,
   getArticleById,
-  addSavedArticle,
-  removeSavedArticle,
   deleteArticleById,
   updateArticle,
 } from '../controllers/articlesController.js';
@@ -64,9 +62,5 @@ router.patch(
   updateArticle,
 );
 router.delete('/articles/:articleId', authenticate, deleteArticleById);
-
-router.use('/users', authenticate);
-router.post('/users/saved/:articleId', addSavedArticle);
-router.delete('/users/saved/:articleId', removeSavedArticle);
 
 export default router;
