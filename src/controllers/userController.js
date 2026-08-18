@@ -55,6 +55,49 @@ export const updateUserAvatar = async (req, res, next) => {
   res.status(200).json({ url: updatedUser.avatar });
 };
 
+export const buildUserProfileUpdate = async ({
+  username,
+  file,
+  userId,
+  uploadAvatar = saveFileToCloudinary,
+}) => {
+  const update = {};
+
+  if (username !== undefined) {
+    update.username = username;
+  }
+
+  if (file) {
+    const result = await uploadAvatar(file.buffer, userId);
+    update.avatar = result.secure_url;
+  }
+
+  if (Object.keys(update).length === 0) {
+    throw createHttpError(400, 'Provide a username or avatar');
+  }
+
+  return update;
+};
+
+export const updateCurrentUser = async (req, res) => {
+  const update = await buildUserProfileUpdate({
+    username: req.body.username,
+    file: req.file,
+    userId: req.user._id,
+  });
+
+  const updatedUser = await User.findByIdAndUpdate(req.user._id, update, {
+    new: true,
+    runValidators: true,
+  }).select('_id username email avatar');
+
+  if (!updatedUser) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  res.status(200).json({ user: updatedUser });
+};
+
 export const getUserById = async (req, res) => {
   const { id } = req.params;
 
