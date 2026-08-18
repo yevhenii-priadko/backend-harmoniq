@@ -1,24 +1,41 @@
 const objectIdExample = '64f8a6e8c2d4a12f0b7f4b91';
 
+const publicUserProperties = {
+  _id: {
+    type: 'string',
+    example: objectIdExample,
+  },
+  username: {
+    type: 'string',
+    example: 'Olena Kovalenko',
+  },
+  avatar: {
+    type: 'string',
+    example: 'https://res.cloudinary.com/demo/image/upload/avatar.jpg',
+  },
+  createdAt: {
+    type: 'string',
+    format: 'date-time',
+  },
+  updatedAt: {
+    type: 'string',
+    format: 'date-time',
+  },
+};
+
+const publicUserSchema = {
+  type: 'object',
+  properties: publicUserProperties,
+};
+
 const userSchema = {
   type: 'object',
   properties: {
-    _id: {
-      type: 'string',
-      example: objectIdExample,
-    },
-    username: {
-      type: 'string',
-      example: 'Olena Kovalenko',
-    },
+    ...publicUserProperties,
     email: {
       type: 'string',
       format: 'email',
       example: 'olena@example.com',
-    },
-    avatar: {
-      type: 'string',
-      example: 'https://res.cloudinary.com/demo/image/upload/avatar.jpg',
     },
     savedArticles: {
       type: 'array',
@@ -26,14 +43,6 @@ const userSchema = {
         type: 'string',
         example: objectIdExample,
       },
-    },
-    createdAt: {
-      type: 'string',
-      format: 'date-time',
-    },
-    updatedAt: {
-      type: 'string',
-      format: 'date-time',
     },
   },
 };
@@ -270,6 +279,7 @@ export const openApiSpec = {
     },
     schemas: {
       User: userSchema,
+      PublicUser: publicUserSchema,
       Article: articleSchema,
       ErrorResponse: {
         type: 'object',
@@ -375,7 +385,7 @@ export const openApiSpec = {
           users: {
             type: 'array',
             items: {
-              $ref: '#/components/schemas/User',
+              $ref: '#/components/schemas/PublicUser',
             },
           },
         },
@@ -722,7 +732,7 @@ export const openApiSpec = {
                   type: 'object',
                   properties: {
                     user: {
-                      $ref: '#/components/schemas/User',
+                      $ref: '#/components/schemas/PublicUser',
                     },
                   },
                 },
