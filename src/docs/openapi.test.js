@@ -23,6 +23,37 @@ test('documents PATCH /articles/{articleId}', () => {
   ]);
 });
 
+test('documents the private current-user profile update', () => {
+  const operation = openApiSpec.paths['/users/me']?.patch;
+  const schema = openApiSpec.components.schemas.UpdateUserRequest;
+
+  assert.ok(operation);
+  assert.deepEqual(operation.security, [
+    { sessionIdCookie: [], accessTokenCookie: [] },
+  ]);
+  assert.equal(
+    operation.requestBody.content['multipart/form-data'].schema.$ref,
+    '#/components/schemas/UpdateUserRequest',
+  );
+  assert.equal(schema.required, undefined);
+  assert.equal(schema.additionalProperties, false);
+  assert.equal(schema.properties.username.minLength, 2);
+  assert.equal(schema.properties.username.maxLength, 32);
+  assert.equal(schema.properties.avatar.format, 'binary');
+  assert.match(schema.properties.avatar.description, /1 MB/i);
+  assert.equal(
+    operation.responses[200].content['application/json'].schema.properties.user
+      .$ref,
+    '#/components/schemas/User',
+  );
+  assert.deepEqual(Object.keys(operation.responses).sort(), [
+    '200',
+    '400',
+    '401',
+    '404',
+  ]);
+});
+
 test('uses a restricted schema for public user responses', () => {
   const schemas = openApiSpec.components.schemas;
   const usersListRef = schemas.UsersListResponse.properties.users.items.$ref;
@@ -64,6 +95,7 @@ test('rejects unknown fields in validated request schemas', () => {
     'CreateArticleMultipartRequest',
     'UpdateArticleRequest',
     'UpdateArticleMultipartRequest',
+    'UpdateUserRequest',
   ];
 
   for (const schemaName of requestSchemas) {
@@ -93,6 +125,7 @@ test('documents image upload constraints', () => {
     schemas.AvatarUploadRequest.properties.avatar,
     schemas.CreateArticleMultipartRequest.properties.photo,
     schemas.UpdateArticleMultipartRequest.properties.photo,
+    schemas.UpdateUserRequest.properties.avatar,
   ];
 
   for (const field of binaryFields) {

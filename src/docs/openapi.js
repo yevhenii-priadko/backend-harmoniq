@@ -518,6 +518,24 @@ export const openApiSpec = {
           },
         },
       },
+      UpdateUserRequest: {
+        type: 'object',
+        additionalProperties: false,
+        description: 'Provide at least one of username or avatar.',
+        properties: {
+          username: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 32,
+            example: 'Olena Kovalenko',
+          },
+          avatar: {
+            type: 'string',
+            format: 'binary',
+            description: 'Image file up to 1 MB.',
+          },
+        },
+      },
     },
   },
   paths: {
@@ -749,6 +767,50 @@ export const openApiSpec = {
           },
           400: errorResponses.ValidationError,
           401: errorResponses.Unauthorized,
+        },
+      },
+    },
+    '/users/me': {
+      patch: {
+        tags: ['Users'],
+        summary: 'Update the current user profile',
+        description:
+          'Updates the username, avatar, or both. At least one field must be provided.',
+        security: [
+          {
+            sessionIdCookie: [],
+            accessTokenCookie: [],
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                $ref: '#/components/schemas/UpdateUserRequest',
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Current user profile was updated.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    user: {
+                      $ref: '#/components/schemas/User',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: errorResponses.ValidationError,
+          401: errorResponses.Unauthorized,
+          404: errorResponses.NotFound,
         },
       },
     },
