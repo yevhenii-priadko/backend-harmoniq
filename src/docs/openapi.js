@@ -134,7 +134,7 @@ const errorResponses = {
     content: {
       'application/json': {
         schema: {
-          $ref: '#/components/schemas/ErrorResponse',
+          $ref: '#/components/schemas/ValidationErrorResponse',
         },
       },
     },
@@ -288,6 +288,46 @@ export const openApiSpec = {
           message: {
             type: 'string',
             example: 'Validation error',
+          },
+        },
+      },
+      ValidationErrorResponse: {
+        type: 'object',
+        required: ['statusCode', 'error', 'message', 'validation'],
+        properties: {
+          statusCode: {
+            type: 'integer',
+            example: 400,
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          message: {
+            type: 'string',
+            example: 'Validation failed',
+          },
+          validation: {
+            type: 'object',
+            additionalProperties: {
+              type: 'object',
+              required: ['source', 'keys', 'message'],
+              properties: {
+                source: {
+                  type: 'string',
+                  enum: ['body', 'query', 'params'],
+                },
+                keys: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                },
+                message: {
+                  type: 'string',
+                },
+              },
+            },
           },
         },
       },

@@ -101,3 +101,23 @@ test('documents image upload constraints', () => {
     assert.match(field.description, /1 MB/i);
   }
 });
+
+test('documents Celebrate validation errors', () => {
+  const schema = openApiSpec.components.schemas.ValidationErrorResponse;
+  const registerErrorRef =
+    openApiSpec.paths['/auth/register'].post.responses[400].content[
+      'application/json'
+    ].schema.$ref;
+
+  assert.ok(schema);
+  assert.deepEqual([...schema.required].sort(), [
+    'error',
+    'message',
+    'statusCode',
+    'validation',
+  ]);
+  assert.equal(
+    registerErrorRef,
+    '#/components/schemas/ValidationErrorResponse',
+  );
+});
