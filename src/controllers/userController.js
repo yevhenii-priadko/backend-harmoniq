@@ -19,7 +19,7 @@ export const getUsers = async (req, res) => {
   const skip = (page - 1) * perPage;
 
   const userQuery = User.find()
-    .select('-password -savedArticles -__v')
+    .select('-password -email -savedArticles -__v')
     .sort({ createdAt: -1 });
 
   const [totalUsers, users] = await Promise.all([
@@ -58,7 +58,9 @@ export const updateUserAvatar = async (req, res, next) => {
 export const getUserById = async (req, res) => {
   const { id } = req.params;
 
-  const user = await User.findOne({ _id: id }).select('-password -savedArticles -__v');
+  const user = await User.findOne({ _id: id }).select(
+    '-password -email -savedArticles -__v',
+  );
 
   if (!user) {
     throw createHttpError(404, 'User not found');
@@ -99,7 +101,7 @@ export const getSavedArticles = async (req, res) => {
   const skip = (page - 1) * perPage;
 
   const articleQuery = Article.find({
-    _id: { $in: req.user.savedArticles},
+    _id: { $in: req.user.savedArticles },
   });
 
   const [totalArticles, articles] = await Promise.all([
