@@ -86,3 +86,18 @@ test('documents cookies returned by session refresh', () => {
   assert.match(header.description, /accessToken/);
   assert.match(header.description, /refreshToken/);
 });
+
+test('documents image upload constraints', () => {
+  const schemas = openApiSpec.components.schemas;
+  const binaryFields = [
+    schemas.AvatarUploadRequest.properties.avatar,
+    schemas.CreateArticleMultipartRequest.properties.photo,
+    schemas.UpdateArticleMultipartRequest.properties.photo,
+  ];
+
+  for (const field of binaryFields) {
+    assert.equal(field.format, 'binary');
+    assert.match(field.description, /image/i);
+    assert.match(field.description, /1 MB/i);
+  }
+});

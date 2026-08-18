@@ -435,6 +435,7 @@ export const openApiSpec = {
           photo: {
             type: 'string',
             format: 'binary',
+            description: 'Image file up to 1 MB.',
           },
         },
       },
@@ -451,6 +452,7 @@ export const openApiSpec = {
           photo: {
             type: 'string',
             format: 'binary',
+            description: 'Image file up to 1 MB.',
           },
         },
       },
@@ -461,6 +463,7 @@ export const openApiSpec = {
           avatar: {
             type: 'string',
             format: 'binary',
+            description: 'Image file up to 1 MB.',
           },
         },
       },
