@@ -238,6 +238,10 @@ export const openApiSpec = {
       description: 'Article listing, details, creation, and deletion.',
     },
     {
+      name: 'Categories',
+      description: 'Available article categories.',
+    },
+    {
       name: 'Saved Articles',
       description: 'Current user saved article actions.',
     },
@@ -448,6 +452,29 @@ export const openApiSpec = {
         responses: {
           200: {
             description: 'OpenAPI document.',
+          },
+        },
+      },
+    },
+    '/categories': {
+      get: {
+        tags: ['Categories'],
+        summary: 'Get article categories',
+        responses: {
+          200: {
+            description: 'Available article categories.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: ['popular', 'general'],
+                  },
+                  example: ['popular', 'general'],
+                },
+              },
+            },
           },
         },
       },
