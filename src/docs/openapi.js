@@ -158,6 +158,7 @@ const paginationParameters = [
     schema: {
       type: 'integer',
       minimum: 1,
+      maximum: 100,
       default: 12,
     },
     required: false,
@@ -714,6 +715,7 @@ export const openApiSpec = {
               },
             },
           },
+          400: errorResponses.ValidationError,
           401: errorResponses.Unauthorized,
         },
       },
@@ -759,6 +761,7 @@ export const openApiSpec = {
               },
             },
           },
+          400: errorResponses.ValidationError,
         },
       },
     },
@@ -898,6 +901,7 @@ export const openApiSpec = {
               },
             },
           },
+          400: errorResponses.ValidationError,
         },
         responses: {
           200: {

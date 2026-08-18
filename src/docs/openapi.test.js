@@ -41,3 +41,17 @@ test('uses a restricted schema for public user responses', () => {
   assert.ok(schemas.User.properties.email);
   assert.ok(schemas.User.properties.savedArticles);
 });
+
+test('documents validated pagination for user article lists', () => {
+  const paths = ['/users/me/saved-articles', '/users/{id}/articles'];
+
+  for (const path of paths) {
+    const operation = openApiSpec.paths[path].get;
+    const perPage = operation.parameters.find(
+      (parameter) => parameter.name === 'perPage',
+    );
+
+    assert.equal(perPage.schema.maximum, 100);
+    assert.ok(operation.responses[400]);
+  }
+});
