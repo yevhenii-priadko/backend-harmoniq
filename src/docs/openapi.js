@@ -423,6 +423,20 @@ export const openApiSpec = {
           },
         },
       },
+      UpdateArticleRequest: {
+        type: 'object',
+        properties: articleRequestProperties,
+      },
+      UpdateArticleMultipartRequest: {
+        type: 'object',
+        properties: {
+          ...articleRequestProperties,
+          photo: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
       AvatarUploadRequest: {
         type: 'object',
         required: ['avatar'],
@@ -847,6 +861,47 @@ export const openApiSpec = {
             },
           },
           400: errorResponses.ValidationError,
+          404: errorResponses.NotFound,
+        },
+      },
+      patch: {
+        tags: ['Articles'],
+        summary: 'Update article by id',
+        security: [
+          {
+            sessionIdCookie: [],
+            accessTokenCookie: [],
+          },
+        ],
+        parameters: [articleIdParameter],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/UpdateArticleRequest',
+              },
+            },
+            'multipart/form-data': {
+              schema: {
+                $ref: '#/components/schemas/UpdateArticleMultipartRequest',
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Article updated successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Article',
+                },
+              },
+            },
+          },
+          400: errorResponses.ValidationError,
+          401: errorResponses.Unauthorized,
           404: errorResponses.NotFound,
         },
       },
