@@ -8,7 +8,7 @@ const userSchema = new Schema(
     avatar: {
       type: String,
       required: false,
-      default: 'https:URL',
+      default: null,
     },
 
     savedArticles: [

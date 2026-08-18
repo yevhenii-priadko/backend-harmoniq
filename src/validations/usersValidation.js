@@ -1,0 +1,11 @@
+import { Joi, Segments } from 'celebrate';
+
+// Той самий підхід до пагінації, що вже використовується в getAllArticlesSchema
+// (src/validations/articlesValidation.js) — застосовуємо його і тут, бо
+// getUserArticles/getSavedArticles досі приймали page/perPage без перевірки.
+export const paginationSchema = {
+  [Segments.QUERY]: Joi.object({
+    page: Joi.number().integer().min(1).default(1),
+    perPage: Joi.number().integer().min(1).max(100).default(12),
+  }),
+};

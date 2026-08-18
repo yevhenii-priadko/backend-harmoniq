@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { celebrate } from 'celebrate';
 import {
   getSavedArticles,
   getUserArticles,
@@ -12,6 +13,7 @@ import {
 } from '../controllers/articlesController.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { upload } from '../middleware/multer.js';
+import { paginationSchema } from '../validations/usersValidation.js';
 
 const router = Router();
 
@@ -22,10 +24,15 @@ router.patch(
   updateUserAvatar,
 );
 router.get('/users', getUsers);
-router.get('/users/me/saved-articles', authenticate, getSavedArticles);
+router.get(
+  '/users/me/saved-articles',
+  authenticate,
+  celebrate(paginationSchema),
+  getSavedArticles,
+);
 router.post('/users/saved/:articleId', authenticate, addSavedArticle);
 router.delete('/users/saved/:articleId', authenticate, removeSavedArticle);
-router.get('/users/:id/articles', getUserArticles);
+router.get('/users/:id/articles', celebrate(paginationSchema), getUserArticles);
 router.get('/users/:id/', getUserById);
 
 export default router;
