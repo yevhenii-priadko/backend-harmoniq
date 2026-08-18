@@ -7,6 +7,8 @@ import {
 } from './userController.js';
 import { updateUserSchema } from '../validations/usersValidation.js';
 import { User } from '../models/user.js';
+import userRoutes from '../routes/userRoutes.js';
+import { toAvatarUploadError } from '../middleware/multer.js';
 
 const validateUpdateBody = (body) =>
   updateUserSchema[Segments.BODY].validate(body);
@@ -113,4 +115,32 @@ test('updates only the authenticated user and returns a sanitized response', asy
   ]);
   assert.equal(response.statusCode, 200);
   assert.deepEqual(response.payload, { user: safeUser });
+});
+
+test('registers the private current-user update route in middleware order', () => {
+  const layer = userRoutes.stack.find(
+    (candidate) => candidate.route?.path === '/users/me',
+  );
+
+  assert.ok(layer, 'PATCH /users/me route is missing');
+  assert.equal(layer.route.methods.patch, true);
+  assert.equal(layer.route.stack.length, 4);
+  assert.equal(layer.route.stack[0].handle.name, 'authenticate');
+  assert.equal(layer.route.stack[1].handle.name, 'uploadAvatar');
+  assert.equal(layer.route.stack[3].handle.name, 'updateCurrentUser');
+});
+
+test('maps avatar upload failures to client errors', () => {
+  const oversized = toAvatarUploadError({
+    code: 'LIMIT_FILE_SIZE',
+    message: 'File too large',
+  });
+  const invalidType = toAvatarUploadError({
+    message: 'Only images allowed',
+  });
+
+  assert.equal(oversized.status, 400);
+  assert.equal(oversized.message, 'Maximum file size is 1 MB');
+  assert.equal(invalidType.status, 400);
+  assert.equal(invalidType.message, 'Only images allowed');
 });
