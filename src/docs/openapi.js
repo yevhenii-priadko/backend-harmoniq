@@ -618,6 +618,14 @@ export const openApiSpec = {
         responses: {
           200: {
             description: 'Session refreshed successfully.',
+            headers: {
+              'Set-Cookie': {
+                description: 'sessionId, accessToken, and refreshToken cookies.',
+                schema: {
+                  type: 'string',
+                },
+              },
+            },
             content: {
               'application/json': {
                 schema: {

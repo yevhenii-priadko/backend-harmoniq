@@ -74,3 +74,15 @@ test('rejects unknown fields in validated request schemas', () => {
     );
   }
 });
+
+test('documents cookies returned by session refresh', () => {
+  const header =
+    openApiSpec.paths['/auth/refresh'].post.responses[200].headers?.[
+      'Set-Cookie'
+    ];
+
+  assert.ok(header);
+  assert.match(header.description, /sessionId/);
+  assert.match(header.description, /accessToken/);
+  assert.match(header.description, /refreshToken/);
+});
