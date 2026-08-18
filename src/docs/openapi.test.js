@@ -121,3 +121,18 @@ test('documents Celebrate validation errors', () => {
     '#/components/schemas/ValidationErrorResponse',
   );
 });
+
+test('documents MongoDB ObjectId path parameters', () => {
+  const idParameters = Object.values(openApiSpec.paths).flatMap((pathItem) =>
+    Object.values(pathItem).flatMap((operation) =>
+      (operation.parameters ?? []).filter((parameter) =>
+        ['articleId', 'id'].includes(parameter.name),
+      ),
+    ),
+  );
+
+  assert.ok(idParameters.length > 0);
+  for (const parameter of idParameters) {
+    assert.equal(parameter.schema.pattern, '^[0-9a-fA-F]{24}$');
+  }
+});

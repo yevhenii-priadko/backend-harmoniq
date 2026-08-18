@@ -171,6 +171,7 @@ const articleIdParameter = {
   required: true,
   schema: {
     type: 'string',
+    pattern: '^[0-9a-fA-F]{24}$',
     example: objectIdExample,
   },
 };
@@ -181,6 +182,7 @@ const userIdParameter = {
   required: true,
   schema: {
     type: 'string',
+    pattern: '^[0-9a-fA-F]{24}$',
     example: objectIdExample,
   },
 };
