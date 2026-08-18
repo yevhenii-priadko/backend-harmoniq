@@ -55,12 +55,18 @@ router.post(
 );
 router.patch(
   '/articles/:articleId',
+  celebrate(articleIdSchema),
   authenticate,
   upload.single('photo'),
   attachArticlePhotoUrl,
   celebrate(updateArticleSchema),
   updateArticle,
 );
-router.delete('/articles/:articleId', authenticate, deleteArticleById);
+router.delete(
+  '/articles/:articleId',
+  celebrate(articleIdSchema),
+  authenticate,
+  deleteArticleById,
+);
 
 export default router;
