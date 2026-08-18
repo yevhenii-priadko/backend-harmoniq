@@ -293,6 +293,7 @@ export const openApiSpec = {
       },
       RegisterRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['username', 'email', 'password'],
         properties: {
           username: {
@@ -318,6 +319,7 @@ export const openApiSpec = {
       },
       LoginRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['email', 'password'],
         properties: {
           email: {
@@ -420,11 +422,13 @@ export const openApiSpec = {
       },
       CreateArticleRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['title', 'description', 'photo', 'date', 'author'],
         properties: articleRequestProperties,
       },
       CreateArticleMultipartRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['title', 'description', 'photo', 'date', 'author'],
         properties: {
           ...articleRequestProperties,
@@ -436,10 +440,12 @@ export const openApiSpec = {
       },
       UpdateArticleRequest: {
         type: 'object',
+        additionalProperties: false,
         properties: articleRequestProperties,
       },
       UpdateArticleMultipartRequest: {
         type: 'object',
+        additionalProperties: false,
         properties: {
           ...articleRequestProperties,
           photo: {

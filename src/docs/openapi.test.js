@@ -55,3 +55,22 @@ test('documents validated pagination for user article lists', () => {
     assert.ok(operation.responses[400]);
   }
 });
+
+test('rejects unknown fields in validated request schemas', () => {
+  const requestSchemas = [
+    'RegisterRequest',
+    'LoginRequest',
+    'CreateArticleRequest',
+    'CreateArticleMultipartRequest',
+    'UpdateArticleRequest',
+    'UpdateArticleMultipartRequest',
+  ];
+
+  for (const schemaName of requestSchemas) {
+    assert.equal(
+      openApiSpec.components.schemas[schemaName].additionalProperties,
+      false,
+      schemaName,
+    );
+  }
+});
