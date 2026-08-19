@@ -5,6 +5,7 @@ import {
   getUserArticles,
   getUserById,
   getUsers,
+  updateCurrentUser,
   updateUserAvatar,
 } from '../controllers/userController.js';
 import {
@@ -12,16 +13,26 @@ import {
   removeSavedArticle,
 } from '../controllers/articlesController.js';
 import { authenticate } from '../middleware/authenticate.js';
-import { upload } from '../middleware/multer.js';
-import { paginationSchema } from '../validations/usersValidation.js';
+import { uploadAvatar } from '../middleware/multer.js';
+import {
+  paginationSchema,
+  updateUserSchema,
+} from '../validations/usersValidation.js';
 
 const router = Router();
 
 router.patch(
   '/users/avatar',
   authenticate,
-  upload.single('avatar'),
+  uploadAvatar,
   updateUserAvatar,
+);
+router.patch(
+  '/users/me',
+  authenticate,
+  uploadAvatar,
+  celebrate(updateUserSchema),
+  updateCurrentUser,
 );
 router.get('/users', getUsers);
 router.get(
