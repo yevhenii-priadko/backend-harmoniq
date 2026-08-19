@@ -1,24 +1,41 @@
 const objectIdExample = '64f8a6e8c2d4a12f0b7f4b91';
 
+const publicUserProperties = {
+  _id: {
+    type: 'string',
+    example: objectIdExample,
+  },
+  username: {
+    type: 'string',
+    example: 'Olena Kovalenko',
+  },
+  avatar: {
+    type: 'string',
+    example: 'https://res.cloudinary.com/demo/image/upload/avatar.jpg',
+  },
+  createdAt: {
+    type: 'string',
+    format: 'date-time',
+  },
+  updatedAt: {
+    type: 'string',
+    format: 'date-time',
+  },
+};
+
+const publicUserSchema = {
+  type: 'object',
+  properties: publicUserProperties,
+};
+
 const userSchema = {
   type: 'object',
   properties: {
-    _id: {
-      type: 'string',
-      example: objectIdExample,
-    },
-    username: {
-      type: 'string',
-      example: 'Olena Kovalenko',
-    },
+    ...publicUserProperties,
     email: {
       type: 'string',
       format: 'email',
       example: 'olena@example.com',
-    },
-    avatar: {
-      type: 'string',
-      example: 'https://res.cloudinary.com/demo/image/upload/avatar.jpg',
     },
     savedArticles: {
       type: 'array',
@@ -26,14 +43,6 @@ const userSchema = {
         type: 'string',
         example: objectIdExample,
       },
-    },
-    createdAt: {
-      type: 'string',
-      format: 'date-time',
-    },
-    updatedAt: {
-      type: 'string',
-      format: 'date-time',
     },
   },
 };
@@ -125,7 +134,7 @@ const errorResponses = {
     content: {
       'application/json': {
         schema: {
-          $ref: '#/components/schemas/ErrorResponse',
+          $ref: '#/components/schemas/ValidationErrorResponse',
         },
       },
     },
@@ -149,6 +158,7 @@ const paginationParameters = [
     schema: {
       type: 'integer',
       minimum: 1,
+      maximum: 100,
       default: 12,
     },
     required: false,
@@ -161,6 +171,7 @@ const articleIdParameter = {
   required: true,
   schema: {
     type: 'string',
+    pattern: '^[0-9a-fA-F]{24}$',
     example: objectIdExample,
   },
 };
@@ -171,6 +182,7 @@ const userIdParameter = {
   required: true,
   schema: {
     type: 'string',
+    pattern: '^[0-9a-fA-F]{24}$',
     example: objectIdExample,
   },
 };
@@ -238,6 +250,10 @@ export const openApiSpec = {
       description: 'Article listing, details, creation, and deletion.',
     },
     {
+      name: 'Categories',
+      description: 'Available article categories.',
+    },
+    {
       name: 'Saved Articles',
       description: 'Current user saved article actions.',
     },
@@ -266,6 +282,7 @@ export const openApiSpec = {
     },
     schemas: {
       User: userSchema,
+      PublicUser: publicUserSchema,
       Article: articleSchema,
       ErrorResponse: {
         type: 'object',
@@ -276,8 +293,49 @@ export const openApiSpec = {
           },
         },
       },
+      ValidationErrorResponse: {
+        type: 'object',
+        required: ['statusCode', 'error', 'message', 'validation'],
+        properties: {
+          statusCode: {
+            type: 'integer',
+            example: 400,
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          message: {
+            type: 'string',
+            example: 'Validation failed',
+          },
+          validation: {
+            type: 'object',
+            additionalProperties: {
+              type: 'object',
+              required: ['source', 'keys', 'message'],
+              properties: {
+                source: {
+                  type: 'string',
+                  enum: ['body', 'query', 'params'],
+                },
+                keys: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                },
+                message: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
       RegisterRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['username', 'email', 'password'],
         properties: {
           username: {
@@ -303,6 +361,7 @@ export const openApiSpec = {
       },
       LoginRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['email', 'password'],
         properties: {
           email: {
@@ -371,7 +430,7 @@ export const openApiSpec = {
           users: {
             type: 'array',
             items: {
-              $ref: '#/components/schemas/User',
+              $ref: '#/components/schemas/PublicUser',
             },
           },
         },
@@ -405,17 +464,37 @@ export const openApiSpec = {
       },
       CreateArticleRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['title', 'description', 'photo', 'date', 'author'],
         properties: articleRequestProperties,
       },
       CreateArticleMultipartRequest: {
         type: 'object',
+        additionalProperties: false,
         required: ['title', 'description', 'photo', 'date', 'author'],
         properties: {
           ...articleRequestProperties,
           photo: {
             type: 'string',
             format: 'binary',
+            description: 'Image file up to 1 MB.',
+          },
+        },
+      },
+      UpdateArticleRequest: {
+        type: 'object',
+        additionalProperties: false,
+        properties: articleRequestProperties,
+      },
+      UpdateArticleMultipartRequest: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          ...articleRequestProperties,
+          photo: {
+            type: 'string',
+            format: 'binary',
+            description: 'Image file up to 1 MB.',
           },
         },
       },
@@ -426,6 +505,7 @@ export const openApiSpec = {
           avatar: {
             type: 'string',
             format: 'binary',
+            description: 'Image file up to 1 MB.',
           },
         },
       },
@@ -435,6 +515,24 @@ export const openApiSpec = {
           url: {
             type: 'string',
             example: 'https://res.cloudinary.com/demo/image/upload/avatar.jpg',
+          },
+        },
+      },
+      UpdateUserRequest: {
+        type: 'object',
+        additionalProperties: false,
+        description: 'Provide at least one of username or avatar.',
+        properties: {
+          username: {
+            type: 'string',
+            minLength: 2,
+            maxLength: 32,
+            example: 'Olena Kovalenko',
+          },
+          avatar: {
+            type: 'string',
+            format: 'binary',
+            description: 'Image file up to 1 MB.',
           },
         },
       },
@@ -448,6 +546,29 @@ export const openApiSpec = {
         responses: {
           200: {
             description: 'OpenAPI document.',
+          },
+        },
+      },
+    },
+    '/categories': {
+      get: {
+        tags: ['Categories'],
+        summary: 'Get article categories',
+        responses: {
+          200: {
+            description: 'Available article categories.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: ['popular', 'general'],
+                  },
+                  example: ['popular', 'general'],
+                },
+              },
+            },
           },
         },
       },
@@ -560,6 +681,14 @@ export const openApiSpec = {
         responses: {
           200: {
             description: 'Session refreshed successfully.',
+            headers: {
+              'Set-Cookie': {
+                description: 'sessionId, accessToken, and refreshToken cookies.',
+                schema: {
+                  type: 'string',
+                },
+              },
+            },
             content: {
               'application/json': {
                 schema: {
@@ -641,6 +770,50 @@ export const openApiSpec = {
         },
       },
     },
+    '/users/me': {
+      patch: {
+        tags: ['Users'],
+        summary: 'Update the current user profile',
+        description:
+          'Updates the username, avatar, or both. At least one field must be provided.',
+        security: [
+          {
+            sessionIdCookie: [],
+            accessTokenCookie: [],
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                $ref: '#/components/schemas/UpdateUserRequest',
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Current user profile was updated.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    user: {
+                      $ref: '#/components/schemas/User',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: errorResponses.ValidationError,
+          401: errorResponses.Unauthorized,
+          404: errorResponses.NotFound,
+        },
+      },
+    },
     '/users/me/saved-articles': {
       get: {
         tags: ['Saved Articles'],
@@ -663,6 +836,7 @@ export const openApiSpec = {
               },
             },
           },
+          400: errorResponses.ValidationError,
           401: errorResponses.Unauthorized,
         },
       },
@@ -681,7 +855,7 @@ export const openApiSpec = {
                   type: 'object',
                   properties: {
                     user: {
-                      $ref: '#/components/schemas/User',
+                      $ref: '#/components/schemas/PublicUser',
                     },
                   },
                 },
@@ -708,6 +882,7 @@ export const openApiSpec = {
               },
             },
           },
+          400: errorResponses.ValidationError,
         },
       },
     },
@@ -820,6 +995,48 @@ export const openApiSpec = {
             },
           },
           400: errorResponses.ValidationError,
+          404: errorResponses.NotFound,
+        },
+      },
+      patch: {
+        tags: ['Articles'],
+        summary: 'Update article by id',
+        security: [
+          {
+            sessionIdCookie: [],
+            accessTokenCookie: [],
+          },
+        ],
+        parameters: [articleIdParameter],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/UpdateArticleRequest',
+              },
+            },
+            'multipart/form-data': {
+              schema: {
+                $ref: '#/components/schemas/UpdateArticleMultipartRequest',
+              },
+            },
+          },
+          
+        },
+        responses: {
+          200: {
+            description: 'Article updated successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Article',
+                },
+              },
+            },
+          },
+          400: errorResponses.ValidationError,
+          401: errorResponses.Unauthorized,
           404: errorResponses.NotFound,
         },
       },
