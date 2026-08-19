@@ -1022,7 +1022,7 @@ export const openApiSpec = {
               },
             },
           },
-          400: errorResponses.ValidationError,
+          
         },
         responses: {
           200: {
